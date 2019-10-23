@@ -14,6 +14,50 @@ struct {
 
 static struct proc *initproc;
 
+typedef struct _pqueue_t
+{
+    int size;                           /*the number of element inside*/
+    int capacity;                       /*the total size of the priority queue*/
+    struct proc* procs[NPROC];         /*memory to store void**/
+} pqueue_t;
+
+pqueue_t queue1;  // priority queue for priority 1
+pqueue_t queue2;  // priority queue for priority 2
+pqueue_t queue3;  // priority queue for priority 3
+
+
+// create a priority queuepqueue_t
+void pqueue_create(pqueue_t* q, int cap){
+    q->size = 0;
+    q->capacity = cap;
+    for(int i=0; i < cap; i++)
+      q->procs[i] = 0;
+}
+
+void pqueue_remove(pqueue_t* q, struct proc* proc){
+    int pos;
+    bool found = false;
+    
+    // find the pos of the element
+    pos = 0;
+    while(pos < q->size && !found){
+        if(q->procs[pos] == proc){
+            found = true;
+        }else{
+            pos++;
+        }
+    }
+    if(found){
+        while(pos < q->size-1){
+            q->procs[pos] = q->procs[pos+1];
+            pos++;
+        }
+        q->procs[q->size-1] = 0;
+        q->size --;
+    }
+
+}
+
 int nextpid = 1;
 extern void forkret(void);
 extern void trapret(void);
@@ -325,7 +369,7 @@ scheduler(void)
 
   int i=0;
   while(i<4){
-   pqueues[i] = createPQueue();
+   pqueues[i] = pqueue_create();
    i++;
   }
 
