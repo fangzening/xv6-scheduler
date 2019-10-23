@@ -597,8 +597,7 @@ kill(int pid)
   return -1;
 }
 
-int 
-  getpinfo(struct pstat* ps){
+int getpinfo(struct pstat* ps){
   struct proc *p;
   int i = 0;
   acquire(&ptable.lock);
