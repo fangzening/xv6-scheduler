@@ -322,7 +322,13 @@ scheduler(void)
   struct proc *p;
   struct cpu *c = mycpu();
   c->proc = 0;
-  
+
+  int i=0;
+  while(i<4){
+   pqueues[i] = createPQueue();
+   i++;
+  }
+
   for(;;){
     // Enable interrupts on this processor.
     sti();
@@ -333,6 +339,21 @@ scheduler(void)
       if(p->state != RUNNABLE)
         continue;
 
+      //check if process in ptable is at front of top priority queue
+      
+      int j=3;
+      while(i>=0){
+      if(p->pid !=pqueues[i]->head->proc->pid){
+      if(!isEmpty(pqueues[i])){
+          continue;
+        }
+      }
+    }
+    
+      }
+        
+
+      //
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
@@ -346,6 +367,14 @@ scheduler(void)
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       c->proc = 0;
+      
+      //Remove these line
+      //remove process from its current queue and add it to the
+      //queue with its current priority
+      
+      //update ticks
+
+
     }
     release(&ptable.lock);
 
