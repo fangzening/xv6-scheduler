@@ -119,6 +119,10 @@ void            userinit(void);
 int             wait(void);
 void            wakeup(void*);
 void            yield(void);
+int             fork2(int);
+int             getpinfo(struct pstat *);
+int             getpri(int);
+int             setpri(int);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

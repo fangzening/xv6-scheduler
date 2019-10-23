@@ -23,6 +23,10 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
+int fork2(int);
+//int getpinfo(struct pstat*);
+int setpri(int, int);
+int getpri(int);
 
 // ulib.c
 int stat(const char*, struct stat*);

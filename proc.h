@@ -1,3 +1,5 @@
+#include "pstat.h"
+#include "types.h"
 // Per-CPU state
 struct cpu {
   uchar apicid;                // Local APIC ID
@@ -48,6 +50,9 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
+  int pri;                     // Process Priority
+  int ticks[NLAYER];           // ticks of each process at each priority
+  int qtail[NLAYER];           // total num in tail of queue
 };
 
 // Process memory is laid out contiguously, low addresses first:
