@@ -263,6 +263,45 @@ fork(void)
   return pid;
 }
 
+int
+fork2(int pri)
+{
+  int i, pid;
+  struct proc *np;
+  struct proc *curproc = myproc();
+  //invalid priority check
+  if(pri < 0 || pri>3 ){
+    return -1;
+  }
+  // Allocate process.
+  if((np = allocproc()) == 0){
+    return -1;
+  }
+  // Copy process state from proc.
+  if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
+    kfree(np->kstack);
+    np->kstack = 0;
+    np->state = UNUSED;
+    return -1;
+  }
+  np->sz = curproc->sz;
+  np->parent = curproc;
+  *np->tf = *curproc->tf;
+  // Clear %eax so that fork returns 0 in the child.
+  np->tf->eax = 0;
+  for(i = 0; i < NOFILE; i++)
+    if(curproc->ofile[i])
+      np->ofile[i] = filedup(curproc->ofile[i]);
+  np->cwd = idup(curproc->cwd);
+  safestrcpy(np->name, curproc->name, sizeof(curproc->name));
+  pid = np->pid;
+  np->pri = pri;
+  acquire(&ptable.lock);
+  np->state = RUNNABLE;
+  release(&ptable.lock);
+  return pid;
+}
+
 // Exit the current process.  Does not return.
 // An exited process remains in the zombie state
 // until its parent calls wait() to find out it exited.
@@ -558,6 +597,42 @@ kill(int pid)
   return -1;
 }
 
+int 
+  getpinfo(struct pstat* ps){
+  struct proc *p;
+  int i = 0;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(ps->state == UNUSED){
+      ps->inuse[i] = 0;
+    }
+    else{
+      ps->inuse[i] = 1;
+    }
+    ps->pid[i] = p->pid;
+    ps->priority[i] = p->pri;
+    ps->state[i] = p->state;
+    ps->ticks[i][p->pri] = p->ticks[i];
+    ps->qtail[i][p->pri] = p->qtail[i];
+    i++;
+  }
+  release(&ptable.lock);
+  return 0;
+}
+int
+getpri(int pid) {
+  struct proc *p;
+  acquire(&ptable.lock);
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if (p->pid == pid) {
+      release(&ptable.lock);
+      return p->pri;
+    }
+  }
+  release(&ptable.lock);
+  return -1;
+}
+
 // Print a process listing to console.  For debugging.
 // Runs when user types ^P on console.
 // No lock to avoid wedging a stuck machine further.
@@ -593,3 +668,5 @@ procdump(void)
     cprintf("\n");
   }
 }
+
+	
