@@ -342,15 +342,15 @@ scheduler(void)
       //check if process in ptable is at front of top priority queue
       
       int j=3;
-      while(i>=0){
+      while(j>=0){
       if(p->pid !=pqueues[i]->head->proc->pid){
       if(!isEmpty(pqueues[i])){
+          j--;
           continue;
         }
       }
     }
-    
-      }
+     }
         
 
       //
@@ -367,13 +367,6 @@ scheduler(void)
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       c->proc = 0;
-      
-      //Remove these line
-      //remove process from its current queue and add it to the
-      //queue with its current priority
-      
-      //update ticks
-
 
     }
     release(&ptable.lock);
